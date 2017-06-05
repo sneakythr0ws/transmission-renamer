@@ -16,6 +16,9 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 public class RutrackerPage extends TrackerPage {
+    RutrackerPage() {
+    }
+
     public RutrackerPage(String url) {
         super(url);
     }
@@ -44,9 +47,9 @@ public class RutrackerPage extends TrackerPage {
 
     @Override
     public boolean isMovie() {
-        Assert.notNull(getCategory(), "Category not found");
+        Assert.notNull(getCategories(), "Category not found");
 
-        return Arrays.asList("Зарубежное кино", "Наше кино", "HD Video", "Мультфильмы").contains(getCategory());
+        return getCategories().get(1).equals("Кино, Видео и ТВ") && Arrays.asList("Зарубежное кино", "Наше кино", "HD Video", "Мультфильмы").contains(getCategories().get(2));
     }
 
     @Override

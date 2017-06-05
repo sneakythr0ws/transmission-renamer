@@ -2,6 +2,7 @@ package org.nick.utils.transmissionrenamer.parsers;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 import org.htmlcleaner.CleanerProperties;
 import org.htmlcleaner.HtmlCleaner;
@@ -14,13 +15,18 @@ import java.util.List;
 import java.util.Optional;
 
 @Slf4j
+@Accessors(chain = true)
 @Data
 public abstract class TrackerPage {
     private String url;
 
     private String title;
     private String postImg;
-    private List<String> category;
+    private List<String> categories;
+
+    TrackerPage() {
+
+    }
 
     public TrackerPage(final String url) {
         this.url = url;
@@ -35,7 +41,7 @@ public abstract class TrackerPage {
 
             this.title = findTitle(tagNode);
             this.postImg = findPosterImg(tagNode);
-            this.category = findCategories(tagNode);
+            this.categories = findCategories(tagNode);
         } catch (IOException e) {
             throw new RuntimeException("Didn't parsed " + url);
         }

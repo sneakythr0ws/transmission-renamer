@@ -63,18 +63,9 @@ public class TransmissionService {
         /*} else if (torrent.getComment().toLowerCase().contains("http://nnm-club.me/")) {
             page = new NNMPage(torrent.getComment());*/
         } else {
-            log.info("Unknown tracker " + torrent.getComment());
+            log.debug("Unknown tracker " + torrent.getComment());
             return Optional.empty();
         }
-
-
-        //if (title.contains("[")) title = title.substring(0, title.indexOf("["));
-
-
-        //title = title.replaceAll("/", "-").replaceAll("[^- ()а-яА-Яa-zA-Z0-9.-]", "");
-
-        //todo add category
-        //final String category = siteParser.findCategory().replaceAll("/", "-").replaceAll("[^- а-яА-Яa-zA-Z0-9.-]", "");
     }
 
     private Optional<SmbFile> getStoragePath(final String downloadDir, final String fileName) {
