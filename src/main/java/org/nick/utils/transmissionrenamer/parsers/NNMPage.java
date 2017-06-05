@@ -39,7 +39,7 @@ public class NNMPage {
     }
 
 //    @Override
-    /*public String parseCategory(final TagNode tagNode) {
+    /*public String findCategory(final TagNode tagNode) {
         List<? extends TagNode> categories = tagNode.getElementListByAttValue("href", getUrl(), true, true);
         return categories == null || categories.size() == 0 ? null : categories.get(0).getText().toString();
     }*/

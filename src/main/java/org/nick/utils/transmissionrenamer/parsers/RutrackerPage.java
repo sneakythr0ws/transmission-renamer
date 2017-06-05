@@ -2,10 +2,14 @@ package org.nick.utils.transmissionrenamer.parsers;
 
 import lombok.extern.slf4j.Slf4j;
 import org.htmlcleaner.TagNode;
+import org.springframework.util.Assert;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * Created by Владимир on 29.03.2015.
@@ -17,33 +21,48 @@ public class RutrackerPage extends TrackerPage {
     }
 
     @Override
-    public Title parseTitle(final TagNode tagNode) {
-        final String title = tagNode.getElementListByAttValue("href", getUrl(), true, true).get(0).getText().toString()
-                .replaceAll("/", "-").replaceAll("[^- \\[\\]()а-яА-Яa-zA-Z0-9.-]", "");
+    public String findTitle(final TagNode tagNode) {
+        String title = tagNode.getElementListByAttValue("href", getUrl(), true, true).get(0).getText().toString();
 
-        final Matcher matcher = Pattern.compile("^(.*) (\\(.*\\)) (\\[.*\\]).*$").matcher(title);
+        return (title.contains("]")) ? title.substring(0, title.indexOf("]") + 1) : title;
+    }
+
+    @Override
+    public Optional<ParsedTitle> parseTitle() {
+        final Matcher matcher = Pattern.compile("^(.*) (\\(.*\\)) (\\[.*\\])$").matcher(getTitle());
         if (matcher.matches()) {
-            return new Title(title, matcher.group(1), matcher.group(2).replaceAll("[(|)]", ""), Short.parseShort(matcher.group(3).substring(1, 5)));
+            return Optional.of(new ParsedTitle(
+                    matcher.group(1),
+                    matcher.group(2).replaceAll("[(|)]", ""),
+                    Short.parseShort(matcher.group(3).substring(1, 5)),
+                    matcher.group(3).split(", ")[1]));
         } else {
-            log.error("Doesn't match " + title + " " + getUrl());
-            return null;
+            log.error("Doesn't match " + getTitle() + " " + getUrl());
+            return Optional.empty();
         }
     }
 
     @Override
-    public String parsePosterImg(final TagNode tagNode) {
+    public boolean isMovie() {
+        Assert.notNull(getCategory(), "Category not found");
+
+        return Arrays.asList("Зарубежное кино", "Наше кино", "HD Video", "Мультфильмы").contains(getCategory());
+    }
+
+    @Override
+    public String findPosterImg(final TagNode tagNode) {
         List<? extends TagNode> imgs = tagNode.getElementListByAttValue("class", "postImg postImgAligned img-right", true, true);
         return imgs == null || imgs.size() == 0 ? null : imgs.get(0).getAttributeByName("title");
     }
 
     @Override
-    public String parseSignature() {
+    public String getSignature() {
         return "http://rutracker.org/";
     }
 
     @Override
-    public String parseCategory(final TagNode tagNode) {
+    public List<String> findCategories(final TagNode tagNode) {
         return tagNode.getElementListByAttValue("class", "nav w100 pad_2", true, true).get(0)
-                .getElementListByName("a", false).get(1).getText().toString();
+                .getElementListByName("a", false).stream().map(TagNode::getText).map(CharSequence::toString).collect(Collectors.toList());
     }
 }

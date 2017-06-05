@@ -2,7 +2,6 @@ package org.nick.utils.transmissionrenamer.parsers;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.htmlcleaner.CleanerProperties;
 import org.htmlcleaner.HtmlCleaner;
@@ -11,16 +10,17 @@ import org.htmlcleaner.TagNode;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Data
 public abstract class TrackerPage {
     private String url;
 
-    private Title title;
+    private String title;
     private String postImg;
-    private String signature;
-    private String category;
+    private List<String> category;
 
     public TrackerPage(final String url) {
         this.url = url;
@@ -33,30 +33,32 @@ public abstract class TrackerPage {
         try (final InputStream is = new URL(url).openStream()) {
             final TagNode tagNode = new HtmlCleaner(props).clean(is, "Windows-1251");
 
-            this.title = parseTitle(tagNode);
-            this.postImg = parsePosterImg(tagNode);
-            this.signature = parseSignature();
-            this.category = parseCategory(tagNode);
+            this.title = findTitle(tagNode);
+            this.postImg = findPosterImg(tagNode);
+            this.category = findCategories(tagNode);
         } catch (IOException e) {
             throw new RuntimeException("Didn't parsed " + url);
         }
     }
 
-    public abstract Title parseTitle(TagNode tagNode);
+    public abstract String findTitle(TagNode tagNode);
 
-    public abstract String parsePosterImg(TagNode tagNode);
+    public abstract String findPosterImg(TagNode tagNode);
 
-    public abstract String parseSignature();
+    public abstract String getSignature();
 
-    public abstract String parseCategory(TagNode tagNode);
+    public abstract List<String> findCategories(TagNode tagNode);
 
+    public abstract Optional<ParsedTitle> parseTitle();
+
+    public abstract boolean isMovie();
 
     @Data
     @AllArgsConstructor
-    public static class Title {
-        private String title;
+    public static class ParsedTitle {
         private String name;
         private String director;
         private Short year;
+        private String country;
     }
 }

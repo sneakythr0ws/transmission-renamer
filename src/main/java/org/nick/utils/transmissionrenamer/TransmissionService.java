@@ -74,7 +74,7 @@ public class TransmissionService {
         //title = title.replaceAll("/", "-").replaceAll("[^- ()а-яА-Яa-zA-Z0-9.-]", "");
 
         //todo add category
-        //final String category = siteParser.parseCategory().replaceAll("/", "-").replaceAll("[^- а-яА-Яa-zA-Z0-9.-]", "");
+        //final String category = siteParser.findCategory().replaceAll("/", "-").replaceAll("[^- а-яА-Яa-zA-Z0-9.-]", "");
     }
 
     private Optional<SmbFile> getStoragePath(final String downloadDir, final String fileName) {
@@ -99,27 +99,46 @@ public class TransmissionService {
             response.getArguments().getTorrents().forEach(torrent -> {
                 if (torrent.getStatus() == 0L) {
                     getSite(torrent).ifPresent(torrentPage -> {
-                        final String name = processName(torrentPage);
-
-                        torrent.getFiles().forEach(file -> {
-                            getStoragePath(torrent.getDownloadDir(), file.getName()).ifPresent(storagePath -> {
-                                try {
-                                    if (storagePath.exists()) {
-                                        log.info(torrent.getComment() + " " + storagePath.getPath());
-                                        log.warn(name.length() + " " + name);
-                                    }
-                                } catch (SmbException e) {
-                                    e.printStackTrace();
-                                }
-                            });
-                        });
+                        if (torrentPage.isMovie()) {
+                            processMovie(torrent, torrentPage);
+                        }
                     });
                 }
             });
         }
     }
 
+    private void processMovie(Torrent torrent, TrackerPage torrentPage) {
+        final String name = processName(torrentPage);
+
+        torrent.getFiles().forEach(file -> {
+            getStoragePath(torrent.getDownloadDir(), file.getName()).ifPresent(storagePath -> {
+                try {
+                    if (storagePath.exists()) {
+                        log.info(torrentPage.getUrl() + " " + storagePath.getPath());
+                        log.warn(name.length() + " " + name);
+                    }
+                } catch (SmbException e) {
+                    log.error("File error", e);
+                }
+            });
+        });
+    }
+
     private String processName(TrackerPage torrentPage) {
-        return torrentPage.getTitle().getName() + " (" + torrentPage.getTitle().getDirector() + ") [" + torrentPage.getTitle().getYear() + "]";
+        if (torrentPage.getTitle().length() > 188) {
+            final Optional<TrackerPage.ParsedTitle> parsedTitleOptional = torrentPage.parseTitle();
+            if (parsedTitleOptional.isPresent()) {
+                return removeNotPathCharacters(parsedTitleOptional.get().getName() + " (" + parsedTitleOptional.get().getDirector() + ") [" + parsedTitleOptional.get().getYear() + ", " + parsedTitleOptional.get().getCountry() + "]");
+            } else {
+                throw new RuntimeException("Title is not parsed");
+            }
+        } else {
+            return removeNotPathCharacters(torrentPage.getTitle());
+        }
+    }
+
+    private String removeNotPathCharacters(final String string) {
+        return string.replaceAll("/", "-").replaceAll("[^- \\[\\]()а-яА-Яa-zA-Z0-9.-]", "");
     }
 }
