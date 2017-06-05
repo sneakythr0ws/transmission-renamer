@@ -28,16 +28,16 @@ public abstract class TrackerPage {
 
     }
 
-    public TrackerPage(final String url) {
-        this.url = url;
+    public TrackerPage(final URL url,final String encoding) {
+        this.url = url.getPath();
 
         final CleanerProperties props = new CleanerProperties();
         props.setTransResCharsToNCR(true);
         props.setTransSpecialEntitiesToNCR(true);
         props.setTranslateSpecialEntities(true);
 
-        try (final InputStream is = new URL(url).openStream()) {
-            final TagNode tagNode = new HtmlCleaner(props).clean(is, "Windows-1251");
+        try (final InputStream is = url.openStream()) {
+            final TagNode tagNode = new HtmlCleaner(props).clean(is, encoding);
 
             this.title = findTitle(tagNode);
             this.postImg = findPosterImg(tagNode);
@@ -47,13 +47,13 @@ public abstract class TrackerPage {
         }
     }
 
-    public abstract String findTitle(TagNode tagNode);
+    protected abstract String findTitle(TagNode tagNode);
 
-    public abstract String findPosterImg(TagNode tagNode);
+    protected abstract String findPosterImg(TagNode tagNode);
 
     public abstract String getSignature();
 
-    public abstract List<String> findCategories(TagNode tagNode);
+    protected abstract List<String> findCategories(TagNode tagNode);
 
     public abstract Optional<ParsedTitle> parseTitle();
 

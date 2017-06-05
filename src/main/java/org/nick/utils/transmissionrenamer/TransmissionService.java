@@ -19,6 +19,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Optional;
 
 @Slf4j
@@ -59,7 +60,12 @@ public class TransmissionService {
         Assert.notNull(torrent.getComment(), "Torrent comment is null");
 
         if (torrent.getComment().toLowerCase().contains("http://rutracker.org/")) {
-            return Optional.of(new RutrackerPage(torrent.getComment()));
+            try {
+                return Optional.of(new RutrackerPage(new URL(torrent.getComment())));
+            } catch (MalformedURLException e) {
+                log.error("Cannot create url " + torrent.getComment(), e);
+                return Optional.empty();
+            }
         /*} else if (torrent.getComment().toLowerCase().contains("http://nnm-club.me/")) {
             page = new NNMPage(torrent.getComment());*/
         } else {

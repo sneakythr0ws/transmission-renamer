@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.htmlcleaner.TagNode;
 import org.springframework.util.Assert;
 
+import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -17,15 +18,16 @@ import java.util.stream.Collectors;
 @Slf4j
 public class RutrackerPage extends TrackerPage {
     RutrackerPage() {
+        super();
     }
 
-    public RutrackerPage(String url) {
-        super(url);
+    public RutrackerPage(URL url) {
+        super(url, "Windows-1251");
     }
 
     @Override
-    public String findTitle(final TagNode tagNode) {
-        String title = tagNode.getElementListByAttValue("href", getUrl(), true, true).get(0).getText().toString();
+    protected String findTitle(final TagNode tagNode) {
+        String title = tagNode.findElementByAttValue("id", "topic-title", true, true).getText().toString();
 
         return (title.contains("]")) ? title.substring(0, title.indexOf("]") + 1) : title;
     }
@@ -53,7 +55,7 @@ public class RutrackerPage extends TrackerPage {
     }
 
     @Override
-    public String findPosterImg(final TagNode tagNode) {
+    protected String findPosterImg(final TagNode tagNode) {
         List<? extends TagNode> imgs = tagNode.getElementListByAttValue("class", "postImg postImgAligned img-right", true, true);
         return imgs == null || imgs.size() == 0 ? null : imgs.get(0).getAttributeByName("title");
     }
@@ -64,7 +66,7 @@ public class RutrackerPage extends TrackerPage {
     }
 
     @Override
-    public List<String> findCategories(final TagNode tagNode) {
+    protected List<String> findCategories(final TagNode tagNode) {
         return tagNode.getElementListByAttValue("class", "nav w100 pad_2", true, true).get(0)
                 .getElementListByName("a", false).stream().map(TagNode::getText).map(CharSequence::toString).collect(Collectors.toList());
     }
