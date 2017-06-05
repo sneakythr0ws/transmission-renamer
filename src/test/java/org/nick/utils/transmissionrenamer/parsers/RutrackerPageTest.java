@@ -21,7 +21,7 @@ public class RutrackerPageTest {
     }
 
     @Test
-    public void parseTitle() throws Exception {
+    public void parseTitle() {
         Assert.assertEquals(TEST_RUTRACKER_PAGE1.parseTitle().get(),
                 new TrackerPage.ParsedTitle(
                         "Джей и молчаливый Боб наносят ответный удар (расширенная версия) / Jay and Silent Bob Strike Back",
@@ -45,21 +45,32 @@ public class RutrackerPageTest {
 
     @Test
     public void isMovie() {
+        Assert.assertTrue(!TEST_RUTRACKER_PAGE1.isMovie());
+        Assert.assertTrue(TEST_RUTRACKER_PAGE2.isMovie());
+        Assert.assertTrue(TEST_RUTRACKER_PAGE3.isMovie());
+
         Assert.assertTrue(!new RutrackerPage().setCategories(Arrays.asList("Главная", "Кино, Видео и ТВ", "2")).isMovie());
         Assert.assertTrue(new RutrackerPage().setCategories(Arrays.asList("Главная", "Кино, Видео и ТВ", "Зарубежное кино")).isMovie());
     }
 
     @Test
-    public void findPosterImg() throws Exception {
+    public void findPosterImg() {
+        Assert.assertEquals(TEST_RUTRACKER_PAGE1.getPostImg(), "http://i82.fastpic.ru/big/2016/1001/b4/a89a16abb20252cc956e486f42e7d5b4.png");
+        Assert.assertEquals(TEST_RUTRACKER_PAGE2.getPostImg(), "http://i4.imageban.ru/out/2011/11/24/dcc373bd679521e1210e15c82e1d5953.png");
+        Assert.assertEquals(TEST_RUTRACKER_PAGE3.getPostImg(), "http://i94.fastpic.ru/big/2017/0528/c1/105acdfccaa5f34de0c796b2a32c3cc1.png");
     }
 
     @Test
-    public void getSignature() throws Exception {
+    public void getSignature() {
+        Assert.assertEquals(TEST_RUTRACKER_PAGE1.getSignature(), RutrackerPage.SIGNATURE_RUTRACKER);
+        Assert.assertEquals(TEST_RUTRACKER_PAGE2.getSignature(), RutrackerPage.SIGNATURE_RUTRACKER);
+        Assert.assertEquals(TEST_RUTRACKER_PAGE3.getSignature(), RutrackerPage.SIGNATURE_RUTRACKER);
     }
 
     @Test
-    public void findCategories() throws Exception {
+    public void findCategories() {
+        Assert.assertEquals(TEST_RUTRACKER_PAGE1.getCategories(), Arrays.asList("Главная", "Разное", "Разное (раздачи)", "Видео"));
+        Assert.assertEquals(TEST_RUTRACKER_PAGE2.getCategories(), Arrays.asList("Главная", "Кино, Видео и ТВ", "Мультфильмы", "Иностранные мультфильмы"));
+        Assert.assertEquals(TEST_RUTRACKER_PAGE3.getCategories(), Arrays.asList("Главная", "Кино, Видео и ТВ", "Зарубежное кино", "Фильмы 2016-2017"));
     }
-
-
 }

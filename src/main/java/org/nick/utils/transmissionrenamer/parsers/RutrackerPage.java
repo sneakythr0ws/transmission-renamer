@@ -17,6 +17,9 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 public class RutrackerPage extends TrackerPage {
+
+    public static final String SIGNATURE_RUTRACKER = "http://rutracker.org/";
+
     RutrackerPage() {
         super();
     }
@@ -62,7 +65,7 @@ public class RutrackerPage extends TrackerPage {
 
     @Override
     public String getSignature() {
-        return "http://rutracker.org/";
+        return SIGNATURE_RUTRACKER;
     }
 
     @Override
